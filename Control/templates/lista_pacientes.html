@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html class="container">
+	<head>
+		<title>Lista de Pacientes</title>
+		<!-- Incluir CSS de Bootstrap -->
+		<link
+			rel="stylesheet"
+			href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script>
+			$(document).ready(function () {
+				// Función para ordenar por campo al hacer clic en el encabezado de la columna
+				$("th").click(function () {
+					var table = $(this).parents("table").eq(0);
+					var rows = table
+						.find("tr:gt(0)")
+						.toArray()
+						.sort(comparer($(this).index()));
+
+					this.asc = !this.asc;
+					if (!this.asc) {
+						rows = rows.reverse();
+					}
+					for (var i = 0; i < rows.length; i++) {
+						table.append(rows[i]);
+					}
+				});
+
+				// Función para comparar los valores de las celdas según el índice de la columna
+				function comparer(index) {
+					return function (a, b) {
+						var valA = getCellValue(a, index);
+						var valB = getCellValue(b, index);
+						return $.isNumeric(valA) && $.isNumeric(valB)
+							? valA - valB
+							: valA.toString().localeCompare(valB);
+					};
+				}
+
+				// Función para obtener el valor de una celda de la tabla
+				function getCellValue(row, index) {
+					return $(row).children("td").eq(index).text();
+				}
+			});
+
+			function confirmarEliminacion(form) {
+				if (confirm("¿Estás seguro de que deseas eliminar al paciente?")) {
+					$.ajax({
+						url: form.action,
+						type: form.method,
+						data: $(form).serialize(),
+						success: function () {
+							location.reload(); // Actualizar la página después de eliminar
+						},
+					});
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Lista de Pacientes</h1>
+			<table class="table">
+				<thead class="thead-dark">
+					<tr>
+						<th>ID Paciente</th>
+						<th>Nombre</th>
+						<th>Apellidos</th>
+						<th>Carnet CI</th>
+						<th>Edad</th>
+						<th>Dirección</th>
+						<th>Ocupación</th>
+						<th></th>
+						<th>Acciones</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for paciente in pacientes %}
+					<tr>
+						<td>{{ paciente.ID_PACIENTE }}</td>
+						<td>{{ paciente.NOMBRE }}</td>
+						<td>{{ paciente.APELLIDOS }}</td>
+						<td>{{ paciente.CARNET_CI }}</td>
+						<td>{{ paciente.EDAD }}</td>
+						<td>{{ paciente.DIRECCION }}</td>
+						<td>{{ paciente.OCUPACION }}</td>
+						<td>
+							<a
+								class="btn btn-primary"
+								href="{% url 'historia_clinica' paciente_id=paciente.ID_PACIENTE %}"
+								>Ver Historia Clínica</a
+							>
+						</td>
+						<td>
+							<form
+								method="post"
+								action="{% url 'eliminar-paciente' id_paciente=paciente.ID_PACIENTE %}"
+								onsubmit="confirmarEliminacion(this); return false;">
+								{% csrf_token %}
+								<input type="submit" class="btn btn-danger" value="Eliminar" />
+							</form>
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+			<a class="btn btn-primary" href="{% url 'agregar_paciente' %}"
+				>Agregar Paciente</a
+			>
+			<a class="btn btn-primary" href="{% url 'agregar_historia_clinica' %}"
+				>Agregar Historias Clínicas</a
+			>
+		</div>
+
+		<!-- Incluir JS de Bootstrap -->
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	</body>
+</html>

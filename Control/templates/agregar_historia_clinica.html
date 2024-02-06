@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Agregar Historia Clínica</title>
+	</head>
+	<body>
+		<h1>Agregar Historia Clínica</h1>
+		<form method="post">
+			{% csrf_token %} {{ form.non_field_errors }}
+			<div></div>
+			<div></div>
+			{% for field in form.visible_fields %}
+			<div>
+				{{ field.label_tag }} {{ field }} {% if field.errors %}
+				<p class="error">{{ field.errors }}</p>
+				{% endif %}
+			</div>
+			{% endfor %}
+
+			<button type="submit">Guardar</button>
+		</form>
+	</body>
+</html>
