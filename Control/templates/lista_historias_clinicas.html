@@ -1,0 +1,15 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container">
+	<h1>Todas las Historias Clínicas</h1>
+	{% if historias_clinicas %}
+	<ul class="list-group">
+		{% for historia_clinica in historias_clinicas %}
+		<li class="list-group-item">{{ historia_clinica.PACIENTE }}</li>
+
+		{% endfor %}
+	</ul>
+	{% else %}
+	<p>No se han creado historias clínicas</p>
+	{% endif %}
+</div>
+{% endblock %}

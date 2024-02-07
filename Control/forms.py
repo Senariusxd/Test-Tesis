@@ -25,6 +25,10 @@ class PacienteForm(forms.ModelForm):
         model = Paciente
         fields = ['ID_PACIENTE', 'NOMBRE', 'APELLIDOS', 'CARNET_CI', 'EDAD', 'DIRECCION', 'OCUPACION']
 
+class ModificarPacienteForm(PacienteForm):
+    class Meta(PacienteForm.Meta):
+        exclude = ['ID_PACIENTE']
+
 
 class HistoriaClinicaForm(forms.ModelForm):
     class Meta:
@@ -47,5 +51,13 @@ class HistoriaClinicaForm(forms.ModelForm):
         )
         widgets = {
             'FECHA_CREACION': forms.DateInput(attrs={'type': 'date', 'input_format': '%Y-%m-%d'}),
+            'FECHA_MODIFICACION': forms.DateInput(attrs={'type': 'date', 'input_format': '%Y-%m-%d'}),
+        }
+        
+class ModificarHistoriaClinicaForm(forms.ModelForm):
+    class Meta:
+        model = HistoriaClinica
+        exclude = ['ID_HISTORIA', 'FECHA_CREACION', 'PACIENTE']
+        widgets = {
             'FECHA_MODIFICACION': forms.DateInput(attrs={'type': 'date', 'input_format': '%Y-%m-%d'}),
         }

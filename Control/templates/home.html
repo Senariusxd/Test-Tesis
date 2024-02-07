@@ -13,16 +13,20 @@
 <div class="jumbotron">
 	<h1 class="display-4">Bienvenido a la Gestión de Historias Clínicas</h1>
 
+	<a href="{% url 'lista_historias_clinicas' %}">
+		<button class="btn btn-primary">Lista HC</button>
+	</a>
+
+	<a href="{% url 'pacientes_sin_historias' %}">
+		<button class="btn btn-primary">Sin Historias</button>
+	</a>
+
 	<a href="{% url 'lista_pacientes' %}">
 		<button class="btn btn-primary">Lista de Pacientes</button>
 	</a>
 
 	<a href="{% url 'agregar_paciente' %}">
 		<button class="btn btn-primary">Agregar Paciente</button>
-	</a>
-
-	<a href="{% url 'todas_historias_clinicas' %}">
-		<button class="btn btn-primary">Lista de Historias Clínicas</button>
 	</a>
 
 	<a href="{% url 'agregar_historia_clinica' %}">
