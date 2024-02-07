@@ -1,15 +1,74 @@
-{% extends 'base.html' %} {% block content %}
-<div class="container">
-	<h1>Todas las Historias Clínicas</h1>
-	{% if historias_clinicas %}
-	<ul class="list-group">
-		{% for historia_clinica in historias_clinicas %}
-		<li class="list-group-item">{{ historia_clinica.PACIENTE }}</li>
-
-		{% endfor %}
-	</ul>
-	{% else %}
-	<p>No se han creado historias clínicas</p>
-	{% endif %}
-</div>
-{% endblock %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Lista de Historias Clínicas</title>
+		<script>
+			function search() {
+				var input, filter, table, tr, td, i, txtValue;
+				input = document.getElementById("searchInput");
+				filter = input.value.toUpperCase();
+				table = document.getElementById("hcTable");
+				tr = table.getElementsByTagName("tr");
+				for (i = 0; i < tr.length; i++) {
+					td = tr[i].getElementsByTagName("td")[1]; // índice 1 para buscar en la columna del paciente
+					if (td) {
+						txtValue = td.textContent || td.innerText;
+						if (txtValue.toUpperCase().indexOf(filter) > -1) {
+							tr[i].style.display = "";
+						} else {
+							tr[i].style.display = "none";
+						}
+					}
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<h1>Lista de Historias Clínicas</h1>
+		<input
+			type="text"
+			id="searchInput"
+			onkeyup="search()"
+			placeholder="Buscar paciente..." />
+		<table id="hcTable">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Paciente</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for historia_clinica in historias_clinicas %}
+				<tr>
+					<td>{{ historia_clinica.paciente.id }}</td>
+					<td>{{ historia_clinica.paciente }}</td>
+					<td>
+						<form
+							action="{% url 'ver_historia_clinica' historia_id=historia_clinica.paciente_id %}"
+							method="GET">
+							<button type="submit">Ver Historia Clínica</button>
+						</form>
+					</td>
+					<td>
+						<a
+							href="{% url 'modificar_historia_clinica' historia_id=historia_clinica.paciente_id %}"
+							class="btn-secondary"
+							>Modificar HC</a
+						>
+					</td>
+					<td>
+						<a
+							href="{% url 'eliminar_historia_clinica' historia_id=historia_clinica.paciente_id %}"
+							class="btn-danger"
+							>Eliminar HC</a
+						>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		<a href="{% url 'crear_historia_clinica' %}">
+			<button class="btn btn-primary">Crear HC</button>
+		</a>
+	</body>
+</html>

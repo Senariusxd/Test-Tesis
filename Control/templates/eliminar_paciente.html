@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Eliminar Paciente</title>
+	</head>
+	<body>
+		<h1>Eliminar Paciente</h1>
+		<p>
+			¿Estás seguro de que deseas eliminar al paciente {{ paciente.nombre }} {{
+			paciente.apellidos }}?
+		</p>
+		<form method="post">
+			{% csrf_token %}
+			<button type="submit">Eliminar</button>
+		</form>
+	</body>
+</html>

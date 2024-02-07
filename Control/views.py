@@ -2,10 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.http import JsonResponse
 from .models import Paciente , HistoriaClinica
-from .forms import PacienteForm, ModificarPacienteForm, HistoriaClinicaForm
-
-import datetime
-
+from .forms import PacienteForm, EditarPacienteForm, HistoriaClinicaForm
 
 def home(request):
     return render(request, "home.html")
@@ -26,6 +23,16 @@ def about_view(request):
     return render(request, 'about.html', datos)
 
 
+
+
+
+
+
+def lista_pacientes(request):
+    pacientes = Paciente.objects.all()
+    return render(request, 'lista_pacientes.html', {'pacientes': pacientes})
+
+
 def agregar_paciente(request):
     if request.method == 'POST':
         form = PacienteForm(request.POST)
@@ -35,98 +42,114 @@ def agregar_paciente(request):
     else:
         form = PacienteForm()
     
-    context = {
-        'form': form
-    }
-    return render(request, 'agregar_paciente.html', context)
+    return render(request, 'agregar_paciente.html', {'form': form})
 
-def modificar_paciente(request, id_paciente):
-    paciente = Paciente.objects.get(ID_PACIENTE=id_paciente)
-
+def editar_paciente(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id_paciente=paciente_id)
+    
     if request.method == 'POST':
-        form = ModificarPacienteForm(request.POST, instance=paciente)
+        form = EditarPacienteForm(request.POST, instance=paciente)
         if form.is_valid():
             form.save()
             return redirect('lista_pacientes')
     else:
-        form = ModificarPacienteForm(instance=paciente, initial={
-            'NOMBRE': paciente.NOMBRE,
-            'APELLIDOS': paciente.APELLIDOS,
-            'CARNET_CI': paciente.CARNET_CI,
-            'EDAD': paciente.EDAD,
-            'DIRECCION': paciente.DIRECCION,
-            'OCUPACION': paciente.OCUPACION,
-        })
+        form = EditarPacienteForm(instance=paciente)
     
-    context = {
-        'form': form,
-        'paciente': paciente,
-    }
-    return render(request, 'modificar_paciente.html', context)
+    return render(request, 'editar_paciente.html', {'form': form, 'paciente': paciente})
 
-def lista_pacientes(request):
-    pacientes = Paciente.objects.all()
-    context = {
-        'pacientes': pacientes
-    }
-    return render(request, 'lista_pacientes.html', context)
-
-def pacientes_sin_historias(request):
-    pacientes = Paciente.objects.filter(historiaclinica__isnull=True)
-    return render(request, 'pacientes_sin_historias.html', {'pacientes': pacientes})
-
-def eliminar_paciente(request, id_paciente):
-    paciente = get_object_or_404(Paciente, ID_PACIENTE=id_paciente)
+def eliminar_paciente(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id_paciente=paciente_id)
     
     if request.method == 'POST':
         paciente.delete()
-        return redirect('lista-pacientes')
+        return redirect('lista_pacientes')
     
-    context = {
-        'paciente': paciente
-    }
-    
-    return render(request, 'lista-pacientes.html', context)
+    return render(request, 'eliminar_paciente.html', {'paciente': paciente})
 
-def agregar_historia_clinica(request):
-    if request.method == 'POST':
-        form = HistoriaClinicaForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('lista_pacientes')  # Redirigir a la lista de pacientes después de agregar la historia clínica
-    else:
-        form = HistoriaClinicaForm()
-    
-    context = {
-        'form': form
-    }
-    
-    return render(request, 'agregar_historia_clinica.html', context)
-
-
-def historia_clinica(request, paciente_id):
-    paciente = get_object_or_404(Paciente, pk=paciente_id)
-    historia_clinica = paciente.historiaclinica_set.first()
-
-    if not historia_clinica:
-        error_message = 'El paciente no tiene una historia clínica. Por favor, cree una.'
-        return JsonResponse({'error_message': error_message})
-
-    # Resto del código de la vista
-    return render(request, 'historia_clinica.html', {'paciente': paciente, 'historia_clinica': historia_clinica})
 
 def lista_historias_clinicas(request):
     historias_clinicas = HistoriaClinica.objects.all()
+    
+    return render(request, 'lista_historias_clinicas.html', {'historias_clinicas': historias_clinicas})
 
-    if not historias_clinicas:
-        error_message = 'No se han creado historias clínicas.'
-        return JsonResponse({'error_message': error_message})
+def crear_historia_clinica(request):
+    if request.method == 'POST':
+        form = HistoriaClinicaForm(request.POST)
+        if form.is_valid():
+            paciente = form.cleaned_data['paciente_id']
+            historia_clinica = HistoriaClinica(paciente=paciente)
+            historia_clinica.fecha_creacion = form.cleaned_data['fecha_creacion']
+            historia_clinica.fecha_modificacion = form.cleaned_data['fecha_modificacion']
+            historia_clinica.motivo_consulta = form.cleaned_data['motivo_consulta']
+            historia_clinica.riesgo_laboral = form.cleaned_data['riesgo_laboral']
+            historia_clinica.ap_personal = form.cleaned_data['ap_personal']
+            historia_clinica.ap_familiar = form.cleaned_data['ap_familiar']
+            historia_clinica.habitos_toxicos = form.cleaned_data['habitos_toxicos']
+            historia_clinica.alergico_medic = form.cleaned_data['alergico_medic']
+            historia_clinica.operaciones = form.cleaned_data['operaciones']
+            historia_clinica.transfusion_sangre = form.cleaned_data['transfusion_sangre']
+            historia_clinica.vacunacion = form.cleaned_data['vacunacion']
+            historia_clinica.profesional = form.cleaned_data['profesional']
+            # Completa con los campos restantes de la historia clínica
+            historia_clinica.save()
+            return redirect('lista_historias_clinicas')
+    else:
+        form = HistoriaClinicaForm()
+    
+    return render(request, 'crear_historia_clinica.html', {'form': form})
 
-    context = {
-        'historias_clinicas': historias_clinicas
-    }
+def eliminar_historia_clinica(request, historia_id):
+    historia = get_object_or_404(HistoriaClinica, paciente_id=historia_id)
+    historia.delete()
+    return redirect('lista_historias')
 
-    return render(request, 'lista_historias_clinicas.html', context)
+def modificar_historia_clinica(request, historia_id):
+    historia_clinica = get_object_or_404(HistoriaClinica, pk=historia_id)
 
+    if request.method == 'POST':
+        form = HistoriaClinicaForm(request.POST)
+        if form.is_valid():
+            historia_clinica.paciente = form.cleaned_data['paciente_id']
+            historia_clinica.fecha_creacion = form.cleaned_data['fecha_creacion']
+            historia_clinica.fecha_modificacion = form.cleaned_data['fecha_modificacion']
+            historia_clinica.motivo_consulta = form.cleaned_data['motivo_consulta']
+            historia_clinica.riesgo_laboral = form.cleaned_data['riesgo_laboral']
+            historia_clinica.ap_personal = form.cleaned_data['ap_personal']
+            historia_clinica.ap_familiar = form.cleaned_data['ap_familiar']
+            historia_clinica.habitos_toxicos = form.cleaned_data['habitos_toxicos']
+            historia_clinica.alergico_medic = form.cleaned_data['alergico_medic']
+            historia_clinica.operaciones = form.cleaned_data['operaciones']
+            historia_clinica.transfusion_sangre = form.cleaned_data['transfusion_sangre']
+            historia_clinica.vacunacion = form.cleaned_data['vacunacion']
+            historia_clinica.profesional = form.cleaned_data['profesional']
+            # Completa con los campos restantes de la historia clínica
+            historia_clinica.save()
+            return redirect('lista_historias_clinicas')
+    else:
+        form = HistoriaClinicaForm(initial={
+            'paciente_id': historia_clinica.paciente,
+            'fecha_creacion': historia_clinica.fecha_creacion,
+            'fecha_modificacion': historia_clinica.fecha_modificacion,
+            'motivo_consulta': historia_clinica.motivo_consulta,
+            'riesgo_laboral': historia_clinica.riesgo_laboral,
+            'ap_personal': historia_clinica.ap_personal,
+            'ap_familiar': historia_clinica.ap_familiar,
+            'habitos_toxicos': historia_clinica.habitos_toxicos,
+            'alergico_medic': historia_clinica.alergico_medic,
+            'operaciones': historia_clinica.operaciones,
+            'transfusion_sangre': historia_clinica.transfusion_sangre,
+            'vacunacion': historia_clinica.vacunacion,
+            'profesional': historia_clinica.profesional,
+            # Completa con los campos restantes del formulario
+        })
+    
+    return render(request, 'modificar_historia_clinica.html', {'form': form})
 
+def eliminar_historia_clinica(request, historia_id):
+    historia = get_object_or_404(HistoriaClinica, pk=historia_id)
+    historia.delete()
+    return redirect('lista_historias_clinicas')
 
+def ver_historia_clinica(request, historia_id):
+    historia_clinica = get_object_or_404(HistoriaClinica, pk=historia_id)
+    return render(request, 'ver_historia_clinica.html', {'historia_clinica': historia_clinica})

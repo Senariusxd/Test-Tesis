@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Agregar Historia Clínica</title>
+		<title>Editar Paciente</title>
 	</head>
 	<body>
-		<h1>Agregar Historia Clínica</h1>
+		<h1>Editar Paciente</h1>
 		<form method="post">
 			{% csrf_token %} {{ form.as_p }}
-			<button type="submit">Agregar</button>
+			<button type="submit">Guardar</button>
 		</form>
 	</body>
 </html>

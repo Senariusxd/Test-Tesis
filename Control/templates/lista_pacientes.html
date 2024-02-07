@@ -1,139 +1,94 @@
-{% extends 'base.html' %} {% block content %} 
-
-<html class="container">
-<head>
-    <title>Lista de Pacientes</title>
-    <!-- Incluir CSS de Bootstrap -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            // Función para ordenar por campo al hacer clic en el encabezado de la columna
-            $("th").click(function () {
-                var table = $(this).parents("table").eq(0);
-                var rows = table
-                    .find("tr:gt(0)")
-                    .toArray()
-                    .sort(comparer($(this).index()));
-
-                this.asc = !this.asc;
-                if (!this.asc) {
-                    rows = rows.reverse();
-                }
-                for (var i = 0; i < rows.length; i++) {
-                    table.append(rows[i]);
-                }
-            });
-
-            // Función para comparar los valores de las celdas según el índice de la columna
-            function comparer(index) {
-                return function (a, b) {
-                    var valA = getCellValue(a, index);
-                    var valB = getCellValue(b, index);
-                    return $.isNumeric(valA) && $.isNumeric(valB)
-                        ? valA - valB
-                        : valA.toString().localeCompare(valB);
-                };
-            }
-
-            // Función para obtener el valor de una celda de la tabla
-            function getCellValue(row, index) {
-                return $(row).children("td").eq(index).text();
-            }
-
-            // Función para filtrar la tabla según el texto de búsqueda
-            $("#buscar").on("keyup", function () {
-                var value = $(this).val().toLowerCase();
-                $("table tbody tr").filter(function () {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-                });
-            });
-        });
-
-        function confirmarEliminacion(form) {
-            if (confirm("¿Estás seguro de que deseas eliminar al paciente?")) {
-                $.ajax({
-                    url: form.action,
-                    type: form.method,
-                    data: $(form).serialize(),
-                    success: function () {
-                        location.reload(); // Actualizar la página después de eliminar
-                    },
-                });
-            }
-        }
-    </script>
-    <style>
-        .no-historia {
-			color: red;
-			text-decoration: underline;
-		}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Lista de Pacientes</h1>
-        <div class="form-group">
-            <input type="text" id="buscar" class="form-control" placeholder="Buscar paciente">
-        </div>
-        <table class="table">
-            <thead class="thead-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Apellidos</th>
-                    <th>Carnet CI</th>
-                    <th>Edad</th>
-                    <th>Dirección</th>
-                    <th>Ocupación</th>
-                    <th>Ver</th>
-                    <th></th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Lista de Pacientes</title>
+		<style>
+			.patient-name {
+				text-decoration: underline;
+				color: red;
+				cursor: pointer;
+			}
+		</style>
+		<script>
+			function search() {
+				var input, filter, table, tr, td, i, txtValue;
+				input = document.getElementById("searchInput");
+				filter = input.value.toUpperCase();
+				table = document.getElementById("patientTable");
+				tr = table.getElementsByTagName("tr");
+				for (i = 0; i < tr.length; i++) {
+					td = tr[i].getElementsByTagName("td")[1]; // índice 1 para buscar en la columna del nombre
+					if (td) {
+						txtValue = td.textContent || td.innerText;
+						if (txtValue.toUpperCase().indexOf(filter) > -1) {
+							tr[i].style.display = "";
+						} else {
+							tr[i].style.display = "none";
+						}
+					}
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<h1>Lista de Pacientes</h1>
+		<input
+			type="text"
+			id="searchInput"
+			onkeyup="search()"
+			placeholder="Buscar paciente..." />
+		<table id="patientTable">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Nombre</th>
+					<th>Apellidos</th>
+					<th>Carnet</th>
+					<th>Edad</th>
+					<th>Direccion</th>
+					<th>Ocupación</th>
+					<th>Carrera</th>
+				</tr>
+			</thead>
+			<tbody>
 				{% for paciente in pacientes %}
-				<tr{% if not paciente.historiaclinica_set.all %} class="no-historia"{% endif %}>
-					<td>{{ paciente.ID_PACIENTE }}</td>
+				<tr>
+					<td>{{ paciente.id_paciente }}</td>
 					<td>
-						{% if not paciente.historiaclinica_set.all %}
-						<a href="{% url 'agregar_historia_clinica' %}?paciente_id={{ paciente.ID_PACIENTE }}">{{ paciente.NOMBRE }}</a>
-						{% else %}
-						{{ paciente.NOMBRE }}
-						{% endif %}
+						{% if not paciente.historiaclinica %}
+						<a
+							href="{% url 'crear_historia_clinica'%}?paciente_id={{ paciente.id_paciente }}"
+							>{{ paciente.nombre }}</a
+						>
+						{% else %} {{ paciente.nombre }} {% endif %}
 					</td>
-					<td>{{ paciente.APELLIDOS }}</td>
-					<td>{{ paciente.CARNET_CI }}</td>
-					<td>{{ paciente.EDAD }}</td>
-					<td>{{ paciente.DIRECCION }}</td>
-					<td>{{ paciente.OCUPACION }}</td>
-					<td>
-                        <a class="btn btn-primary" href="{% url 'historia_clinica' paciente_id=paciente.ID_PACIENTE %}">HC</a>
-					</td>
-					<td>
-						<form method="POST" action="{% url 'modificar-paciente' id_paciente=paciente.ID_PACIENTE %}">
-                            {% csrf_token %} {{ paciente_form.as_p }}
+					<td>{{ paciente.apellidos }}</td>
+					<td>{{ paciente.carnet_id }}</td>
+					<td>{{ paciente.edad }}</td>
+					<td>{{ paciente.direccion }}</td>
+					<td>{{ paciente.ocupacion }}</td>
+					<td>{{ paciente.carrera }}</td>
 
-                            <button type="submit" class="btn btn-primary">Mod</button>
-                        </form>
+					<td>
+						<a
+							href="{% url 'editar_paciente' paciente_id=paciente.id_paciente %}"
+							class="btn-secondary"
+							>Editar paciente</a
+						>
 					</td>
 					<td>
-						<form method="post" action="{% url 'eliminar-paciente' id_paciente=paciente.ID_PACIENTE %}" onsubmit="confirmarEliminacion(this); return false;">
-							{% csrf_token %}
-							<input type="submit" class="btn btn-danger" value="Eliminar" />
-						</form>
+						<a
+							href="{% url 'eliminar_paciente' paciente_id=paciente.id_paciente %}"
+							class="btn-danger"
+							>Eliminar paciente</a
+						>
 					</td>
 				</tr>
 				{% endfor %}
 			</tbody>
-            </tbody>
-        </table>
-        <a class="btn btn-primary" href="{% url 'agregar_paciente' %}">Agregar Paciente</a>
-        <a class="btn btn-primary" href="{% url 'agregar_historia_clinica' %}">Agregar Historias Clínicas</a>
-    </div>
-
-    <!-- Incluir JS de Bootstrap -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
+		</table>
+		<a href="{% url 'agregar_paciente' %}" class="btn-primary"
+			>Agregar paciente</a
+		>
+	</body>
 </html>
-{% endblock %}

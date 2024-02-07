@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Historia Clínica</title>
+	</head>
+	<body>
+		<h1>Historia Clínica</h1>
+		<ul>
+			<li>ID: {{ historia_clinica.paciente.id }}</li>
+			<li>Paciente: {{ historia_clinica.paciente }}</li>
+			<li>Fecha de Creación: {{ historia_clinica.fecha_creacion }}</li>
+			<li>Fecha de Modificación: {{ historia_clinica.fecha_modificacion }}</li>
+			<li>Motivo de Consulta: {{ historia_clinica.motivo_consulta }}</li>
+			<li>Riesgo Laboral: {{ historia_clinica.riesgo_laboral }}</li>
+			<li>Antecedentes Personales: {{ historia_clinica.ap_personal }}</li>
+			<li>Antecedentes Familiares: {{ historia_clinica.ap_familiar }}</li>
+			<li>Hábitos Tóxicos: {{ historia_clinica.habitos_toxicos }}</li>
+			<li>Alergias a Medicamentos: {{ historia_clinica.alergico_medic }}</li>
+			<li>Operaciones: {{ historia_clinica.operaciones }}</li>
+			<li>Transfusión de Sangre: {{ historia_clinica.transfusion_sangre }}</li>
+			<li>Vacunación: {{ historia_clinica.vacunacion }}</li>
+			<li>Profesional: {{ historia_clinica.profesional }}</li>
+		</ul>
+	</body>
+</html>

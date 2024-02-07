@@ -1,41 +1,70 @@
 from django.db import models
 
-class Paciente(models.Model):
-    ID_PACIENTE = models.IntegerField(primary_key=True)
-    NOMBRE = models.CharField(max_length=255)
-    APELLIDOS = models.CharField(max_length=255)
-    CARNET_CI = models.CharField(max_length=255)
-    EDAD = models.CharField(max_length=255)
-    DIRECCION = models.CharField(max_length=255)
-    OCUPACION = models.CharField(max_length=255)
-    def __str__(self):
-        return self.NOMBRE
-    
-    
-
 class Profesional(models.Model):
-    ID_PROFESIONAL = models.IntegerField(primary_key=True)
-    NOMBRE = models.CharField(max_length=255)
-    APELLIDOS = models.CharField(max_length=255)
-    CARNET_CI = models.CharField(max_length=255)
+    id_profesional = models.IntegerField(primary_key=True)
+    nombre = models.CharField(max_length=255)
+    apellidos = models.CharField(max_length=255)
+    carnet_id = models.IntegerField()
+
     def __str__(self):
-        return self.NOMBRE
+        return self.nombre
+
+
+class Paciente(models.Model):
+    id_paciente = models.IntegerField(primary_key=True)
+    nombre = models.CharField(max_length=255)
+    apellidos = models.CharField(max_length=255)
+    carnet_id = models.IntegerField()
+    edad = models.IntegerField()
+    direccion = models.CharField(max_length=255)
+    OCUPACIONES_CHOICES = (
+        ('estudiante', 'Estudiante'),
+        ('trabajador', 'Trabajador'),
+    )
+    ocupacion = models.CharField(max_length=255, choices=OCUPACIONES_CHOICES)
+    CARRERAS_CHOICES = (
+        ('ing-informatico', 'Ing. Informático'),
+        ('ing-mecanico', 'Ing. Mecánico'),
+        ('ing-industrial', 'Ing. Industrial'),
+        ('ing-quimico', 'Ing. Químico'),
+        ('ing-agronomo', 'Ing. Agrónomo'),
+        ('lic-contabilidad', 'Lic. Contabilidad'),
+        ('lic-economia', 'Lic. Economía'),
+        ('lic-derecho', 'Lic. Derecho'),
+        ('lic-cultura-fisica', 'Lic. Cultura Física'),
+        ('lic-estudios-socioculturales', 'Lic. Estudios Socioculturales'),
+    )
+    carrera = models.CharField(max_length=255, choices=CARRERAS_CHOICES, null=True, blank=True)
+
+    def __str__(self):
+        return self.nombre
+
+    def save(self, *args, **kwargs):
+        if self.ocupacion != 'estudiante':
+            self.carrera = ""
+        super().save(*args, **kwargs)
+
 
 class HistoriaClinica(models.Model):
-    ID_HISTORIA = models.IntegerField(primary_key=True)
-    FECHA_CREACION = models.DateField()
-    FECHA_MODIFICACION = models.DateField()
-    MOTIVO_CONSULTA = models.CharField(max_length=255)
-    RIESGO_LABORAL = models.CharField(max_length=255)
-    AP_PERSONAL = models.CharField(max_length=255)
-    AP_FAMILIAR = models.CharField(max_length=255)
-    HABITOS_TOXICOS = models.CharField(max_length=255)
-    ALERGICO_MEDIC = models.CharField(max_length=255)
-    OPERACIONES = models.CharField(max_length=255)
-    TRANSFUCION_SANGRE = models.CharField(max_length=255)
-    VACUNACION = models.CharField(max_length=255)
-    PACIENTE = models.ForeignKey(Paciente, on_delete=models.CASCADE)
-    PROFESIONAL = models.ForeignKey(Profesional, on_delete=models.CASCADE)
-    
+    paciente = models.OneToOneField(Paciente, on_delete=models.CASCADE, primary_key=True)
+    fecha_creacion = models.DateField()
+    fecha_modificacion = models.DateField()
+    motivo_consulta = models.CharField(max_length=255)
+    riesgo_laboral = models.CharField(max_length=255)
+    ap_personal = models.CharField(max_length=255)
+    ap_familiar = models.CharField(max_length=255)
+    habitos_toxicos = models.CharField(max_length=255)
+    alergico_medic = models.CharField(max_length=255)
+    operaciones = models.CharField(max_length=255)
+    transfusion_sangre = models.CharField(max_length=255)
+    vacunacion = models.CharField(max_length=255)
+    profesional = models.ForeignKey(Profesional, on_delete=models.CASCADE)
+
     def __str__(self):
-        return self.PACIENTE
+        return str(self.paciente)
+
+    
+
+
+    
+    

@@ -1,0 +1,14 @@
+<h2>Eliminar Historia Clínica</h2>
+
+<p>¿Estás seguro de que deseas eliminar la siguiente historia clínica?</p>
+
+<p>Paciente: {{ historia.paciente }}</p>
+<p>Motivo de consulta: {{ historia.motivo_consulta }}</p>
+<!-- Otros campos relevantes de la historia clínica -->
+
+<form
+	action="{% url 'eliminar_historia_clinica' paciente_id.id %}"
+	method="post">
+	{% csrf_token %}
+	<input type="submit" value="Eliminar" />
+</form>

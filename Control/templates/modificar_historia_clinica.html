@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Modificar Historia Clínica</title>
+	</head>
+	<body>
+		<h1>Modificar Historia Clínica</h1>
+		<form method="post">
+			{% csrf_token %} {{ form.as_p }}
+			<input type="submit" value="Guardar cambios" />
+		</form>
+	</body>
+</html>
